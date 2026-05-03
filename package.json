@@ -1,8 +1,7 @@
 {
-  "name": "cid-chase",
+  "name": "flappy-modi",
   "version": "1.0.0",
   "private": true,
-  "description": "CID Chase static browser game ready for Vercel deployment.",
   "scripts": {
     "dev": "vercel dev",
     "start": "vercel dev"
