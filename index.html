@@ -49,18 +49,7 @@ body.playing #ad-wrap,body.ad-closed #ad-wrap{opacity:0;pointer-events:none;tran
 </div>
 <div id="ad-wrap" aria-label="Advertisement">
   <button id="ad-close" type="button" aria-label="Close ad" onclick="document.body.classList.add('ad-closed')">x</button>
-  <div id="ad-slot">
-    <script>
-      atOptions = {
-        'key' : 'e4597720f7ceeecbe1bda9e5f182b8b3',
-        'format' : 'iframe',
-        'height' : 50,
-        'width' : 320,
-        'params' : {}
-      };
-    </script>
-    <script src="https://www.highperformanceformat.com/e4597720f7ceeecbe1bda9e5f182b8b3/invoke.js"></script>
-  </div>
+  <div id="ad-slot"></div>
 </div>
 <script>
 // ════════════════════════════════════════════
@@ -558,11 +547,38 @@ function hitR(ax,ay,aw,ah,bx,by,bw,bh,mx,my){
   return ax+mx<bx+bw-mx&&ax+aw-mx>bx+mx&&ay+my<by+bh-my&&ay+ah-my>by+my;
 }
 
+// Keep third-party ads out of the active game loop.
+const AD_KEY='e4597720f7ceeecbe1bda9e5f182b8b3';
+let adLoaded=false,adTimer=null;
+function unloadAd(){
+  if(adTimer){clearTimeout(adTimer);adTimer=null;}
+  const slot=document.getElementById('ad-slot');
+  if(slot)slot.replaceChildren();
+  adLoaded=false;
+}
+function loadAd(){
+  if(running||adLoaded||document.body.classList.contains('ad-closed'))return;
+  const slot=document.getElementById('ad-slot');
+  if(!slot)return;
+  slot.replaceChildren();
+  window.atOptions={key:AD_KEY,format:'iframe',height:50,width:320,params:{}};
+  const s=document.createElement('script');
+  s.src='https://www.highperformanceformat.com/'+AD_KEY+'/invoke.js';
+  s.async=true;
+  slot.appendChild(s);
+  adLoaded=true;
+}
+function scheduleAd(){
+  unloadAd();
+  adTimer=setTimeout(loadAd,900);
+}
+
 // ════════════════════════════════════════════
 //  GAME FLOW
 // ════════════════════════════════════════════
 async function startGame(){
   await initAudio();
+  unloadAd();
   document.body.classList.add('playing');
   const ov=document.getElementById('ov');
   ov.classList.add('gone');setTimeout(()=>ov.style.display='none',400);
@@ -583,6 +599,7 @@ function gameOver(){
   setTimeout(playCaught,220);
   setTimeout(()=>{
     document.body.classList.remove('playing');
+    scheduleAd();
     const ov=document.getElementById('ov');
     ov.style.display='flex';requestAnimationFrame(()=>ov.classList.remove('gone'));
     document.getElementById('logo').innerHTML='PAKAD<br>LIYA!';
@@ -745,6 +762,7 @@ loadImages(()=>{
   const ov=document.getElementById('ov');
   ov.style.display='flex';requestAnimationFrame(()=>ov.classList.remove('gone'));
   drawMenuBg();
+  scheduleAd();
 });
 </script>
 </body>
