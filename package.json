@@ -1,0 +1,13 @@
+{
+  "name": "cid-chase",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Static CID Chase browser game ready for Vercel hosting.",
+  "scripts": {
+    "start": "npx serve .",
+    "deploy": "vercel --prod"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
